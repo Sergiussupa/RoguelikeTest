@@ -1,7 +1,8 @@
 const config = {
-    amount: 100,
+    amount: 45,
 };
-
+var image = new Image();
+image.src = 'tile-P.png';
 class Animation {
     constructor() {
         this.cnv = null;
@@ -11,14 +12,24 @@ class Animation {
         this.rows = null;
         this.grid = null;
         this.stateHero = { x: 3, y: 4 };
+        this.heroImg = new Image();
+        this.enemyImg = new Image();
+        this.wallImg = new Image();
+        this.pathImg = new Image();
     }
     init() {
         this.createCanvas();
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
+        this.renderImage(this.heroImg, 0, 0, config.amount);
+        this.renderImage(this.enemyImg, 10, 10, config.amount);
+        this.renderImage(this.wallImg, 5, 9, config.amount);
+        this.renderImage(this.pathImg, 14, 9, config.amount);
+
+
         this.grid = this.buildGrid();
-        console.table(this.grid);
+        //console.table(this.grid);
         this.setPositionHero();
-        console.table(this.grid)
+        //console.table(this.grid)
     }
     createCanvas() {
         this.cnv = document.createElement("canvas");
@@ -121,17 +132,30 @@ class Animation {
         this.ctx.rect(config.amount * x1, config.amount * y1, x2, y2);
         this.ctx.fillStyle = color;
         this.ctx.fill();
+    }
+    renderImage(img, x1, y1, size) {
+        this.ctx.drawImage(img, config.amount * x1, config.amount * y1, size, size);
+    }
 
-
-        console.log(this.cols + ' <--- cols');
-        console.log(this.rows + ' <--- rows');
+    //preInit == Load
+    loadImages() {
+        this.heroImg.src = 'tile-P.png';
+        this.enemyImg.src = 'tile-E.png';
+        this.wallImg.src = 'tile-W.png';
+        this.pathImg.src = 'tile-.png';
     }
 }
 let anim = new Animation();
-anim.init();
+anim.loadImages();
+(anim.heroImg && anim.enemyImg && anim.pathImg && anim.wallImg).onload = function () {
+    anim.init();
+}
 
 document.addEventListener('keydown', function (event) {
-    if (event.code == 'KeyW' || 'KeyA' || 'KeyS' || 'KeyD') {
+    if (event.code == 'KeyW' ||
+        event.code == 'KeyA' ||
+        event.code == 'KeyS' ||
+        event.code == 'KeyD') {
         console.table(anim.grid);
         console.table(anim.stateHero);
         anim.updatePosition(event.code);

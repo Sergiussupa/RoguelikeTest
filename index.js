@@ -32,6 +32,9 @@ class Animation {
         this.cols = Math.floor(this.size.w / config.amount);
         this.rows = Math.floor(this.size.h / config.amount);
     }
+    clearCanvas() {
+        this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
+    }
 
     buildGrid() {
         return new Array(this.cols).fill(null)
@@ -49,27 +52,30 @@ class Animation {
     updatePosition(jump) {
         switch (jump) {
             case 'KeyW':
+                this.clearCanvas();
                 this.upHero();
                 this.renderRect(this.stateHero.x, this.stateHero.y,
                     config.amount, config.amount, 'white');
                 break;
             case 'KeyS':
+                this.clearCanvas();
                 this.downHero();
                 this.renderRect(this.stateHero.x, this.stateHero.y,
                     config.amount, config.amount, 'white');
                 break;
             case 'KeyD':
+                this.clearCanvas();
                 this.rightHero();
                 this.renderRect(this.stateHero.x, this.stateHero.y,
                     config.amount, config.amount, 'white');
                 break;
             case 'KeyA':
+                this.clearCanvas();
                 this.lefttHero();
                 this.renderRect(this.stateHero.x, this.stateHero.y,
                     config.amount, config.amount, 'white');
                 break;
         }
-
     }
     //nabigation
     upHero() {

@@ -1,5 +1,5 @@
 const config = {
-    amount: 30,
+    amount: 25,
 };
 var image = new Image();
 image.src = 'tile-P.png';
@@ -11,7 +11,7 @@ class Animation {
         this.cols = null;
         this.rows = null;
         this.grid = null;
-        this.stateHero = { x: 9, y: 9, range: 1, currentHP: 1, tag: 'X', img: this.heroImg, maxHP: 5 };
+        this.stateHero = { x: 10, y: 10, range: 1, currentHP: 3, tag: 'X', img: this.heroImg, maxHP: 5 };
         this.heroImg = new Image();
         this.enemyImg = new Image();
         this.wallImg = new Image();
@@ -57,8 +57,8 @@ class Animation {
     setCanvasSize() {
         this.size.w = this.cnv.width = window.innerWidth;
         this.size.h = this.cnv.height = window.innerHeight;
-        this.cols = 60//Math.floor(this.size.w / config.amount);
-        this.rows = 31//Math.floor(this.size.h / config.amount);
+        this.cols = 61//Math.floor(this.size.w / config.amount);
+        this.rows = 32//Math.floor(this.size.h / config.amount);
     }
     clearCanvas() {
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
@@ -95,6 +95,7 @@ class Animation {
         this.grid = new Array(this.cols).fill(null)
             .map(() => new Array(this.rows).fill(null)
                 .map(() => 'P'));
+        this.buildBorder();
         this.countsP = this.cols * this.rows;
         //this.line();
         this.spawnWalls();
@@ -129,10 +130,18 @@ class Animation {
             }
         }
     }
+    buildBorder() {
+        for (let i = 0; i < this.cols; i++) {
+            this.grid[i][0] = 'W';
+            this.grid[i][this.grid[i].length - 1] = 'W';
+            this.grid[0][i % this.rows] = 'W';
+            this.grid[this.grid.length - 1][i % this.rows] = 'W';
+        }
+    }
     spawnWalls() {
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < 3; j++) {
-                this.createWall(1 + i * 10, 1 + j * 10);
+                this.createWall(2 + i * 10, 2 + j * 10);
             }
         }
     }
@@ -171,6 +180,7 @@ class Animation {
                 }
             }
         }
+        this.checkAttackEnemy();
         //console.log('AAAAAAAAAAA');
         //console.table(this.enemyArr[0]);
     }
@@ -194,7 +204,7 @@ class Animation {
                 for (let i = 0; i < this.enemyArr.length; i++) {
                     this.renderHPbarUnit(this.enemyArr[i]);
                 }
-                this.renderAtack();
+                this.renderAttack();
 
                 break;
             case 'KeyS':
@@ -208,7 +218,7 @@ class Animation {
                 for (let i = 0; i < this.enemyArr.length; i++) {
                     this.renderHPbarUnit(this.enemyArr[i]);
                 }
-                this.renderAtack();
+                this.renderAttack();
 
                 break;
             case 'KeyD':
@@ -222,7 +232,7 @@ class Animation {
                 for (let i = 0; i < this.enemyArr.length; i++) {
                     this.renderHPbarUnit(this.enemyArr[i]);
                 }
-                this.renderAtack();
+                this.renderAttack();
 
                 break;
             case 'KeyA':
@@ -237,8 +247,21 @@ class Animation {
                 for (let i = 0; i < this.enemyArr.length; i++) {
                     this.renderHPbarUnit(this.enemyArr[i]);
                 }
-                this.renderAtack();
+                this.renderAttack();
 
+                break;
+            case 'Space':
+                this.clearCanvas();
+                this.attackHero();
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.enemyMove(this.enemyArr[i], this.random(0, 3));
+                }
+                this.texturing();
+                this.renderHPbarUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.renderHPbarUnit(this.enemyArr[i]);
+                }
+                this.renderAttack();
                 break;
         }
     }
@@ -283,20 +306,17 @@ class Animation {
         }
     }
     leftUnit(unit) {
-        if (this.grid[unit.x - 1] != undefined &&
-            this.grid[unit.x - 1][unit.y] == 'P') {
+        if (this.grid[unit.x - 1][unit.y] == 'P') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x--;
             this.grid[unit.x][unit.y] = unit.tag;
-        } else if (this.grid[unit.x - 1] != undefined &&
-            this.grid[unit.x - 1][unit.y] == 'HP' &&
+        } else if (this.grid[unit.x - 1][unit.y] == 'HP' &&
             unit.tag == 'X') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x--;
             if (unit.currentHP != unit.maxHP) unit.currentHP++;
             this.grid[unit.x][unit.y] = unit.tag;
-        } else if (this.grid[unit.x - 1] != undefined &&
-            this.grid[unit.x - 1][unit.y] == 'SW' &&
+        } else if (this.grid[unit.x - 1][unit.y] == 'SW' &&
             unit.tag == 'X') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x--;
@@ -305,25 +325,83 @@ class Animation {
         }
     }
     rightUnit(unit) {
-        if (this.grid[unit.x + 1] != undefined &&
-            this.grid[unit.x + 1][unit.y] == 'P') {
+        if (this.grid[unit.x + 1][unit.y] == 'P') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x++;
             this.grid[unit.x][unit.y] = unit.tag;
-        } else if (this.grid[unit.x + 1] != undefined &&
-            this.grid[unit.x + 1][unit.y] == 'HP' &&
+        } else if (this.grid[unit.x + 1][unit.y] == 'HP' &&
             unit.tag == 'X') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x++;
             if (unit.currentHP != unit.maxHP) unit.currentHP++;
             this.grid[unit.x][unit.y] = unit.tag;
-        } else if (this.grid[unit.x + 1] != undefined &&
-            this.grid[unit.x + 1][unit.y] == 'SW' &&
+        } else if (this.grid[unit.x + 1][unit.y] == 'SW' &&
             unit.tag == 'X') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x++;
             if (unit.range != 2) unit.range++;
             this.grid[unit.x][unit.y] = unit.tag;
+        }
+    }
+    attackHero() {
+
+        if (this.grid[this.stateHero.x + 1][this.stateHero.y] == 'E' ||
+            this.grid[this.stateHero.x - 1][this.stateHero.y] == 'E' ||
+            this.grid[this.stateHero.x][this.stateHero.y + 1] == 'E' ||
+            this.grid[this.stateHero.x][this.stateHero.y - 1] == 'E') {
+            console.table(this.enemyArr);
+            console.table(this.stateHero);
+            alert('meleeAttack');
+            for (let i = 0; i < this.enemyArr.length; i++) {
+                /*if (this.grid[this.enemyArr[i].x + 1][this.enemyArr[i].y] == 'X' ||
+                    this.grid[this.enemyArr[i].x - 1][this.enemyArr[i].y] == 'X' ||
+                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y + 1] == 'X' ||
+                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y - 1] == 'X') {
+                    alert('Loh');
+                    console.log(i);
+                }*/
+
+                if ((this.enemyArr[i].x == this.stateHero.x + 1 ||
+                    this.enemyArr[i].x == this.stateHero.x - 1 ||
+                    this.enemyArr[i].x == this.stateHero.x) &&
+                    (this.enemyArr[i].y == this.stateHero.y + 1 ||
+                        this.enemyArr[i].y == this.stateHero.y - 1 ||
+                        this.enemyArr[i].y == this.stateHero.y)) {
+                    this.enemyArr[i].currentHP--;
+                    if (this.enemyArr[i].currentHP == 0) {
+                        this.grid[this.enemyArr[i].x][this.enemyArr[i].y] = 'P';
+                        this.enemyArr[i] = this.enemyArr.pop();
+                    }
+                }
+            }
+        }
+        if (this.stateHero.range == 2 &&
+            (this.grid[this.stateHero.x + 2][this.stateHero.y] == 'E' ||
+                this.grid[this.stateHero.x - 2][this.stateHero.y] == 'E' ||
+                this.grid[this.stateHero.x][this.stateHero.y + 2] == 'E' ||
+                this.grid[this.stateHero.x][this.stateHero.y - 2] == 'E')) {
+            for (let i = 0; i < this.enemyArr.length; i++) {
+                /*if (this.grid[this.enemyArr[i].x + 1][this.enemyArr[i].y] == 'X' ||
+                    this.grid[this.enemyArr[i].x - 1][this.enemyArr[i].y] == 'X' ||
+                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y + 1] == 'X' ||
+                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y - 1] == 'X') {
+                    alert('Loh');
+                    console.log(i);
+                }*/
+
+                if ((this.enemyArr[i].x == this.stateHero.x + 2 ||
+                    this.enemyArr[i].x == this.stateHero.x - 2 ||
+                    this.enemyArr[i].x == this.stateHero.x) &&
+                    (this.enemyArr[i].y == this.stateHero.y + 2 ||
+                        this.enemyArr[i].y == this.stateHero.y - 2 ||
+                        this.enemyArr[i].y == this.stateHero.y)) {
+                    this.enemyArr[i].currentHP--;
+                    if (this.enemyArr[i].currentHP == 0) {
+                        this.grid[this.enemyArr[i].x][this.enemyArr[i].y] = 'P';
+                        this.enemyArr[i] = this.enemyArr.pop();
+                    }
+                }
+            }
         }
     }
 
@@ -338,8 +416,21 @@ class Animation {
             this.downUnit(unit);
         }
     }
+    checkAttackEnemy() {
+        if (this.grid[this.stateHero.x + 1][this.stateHero.y] == 'E' ||
+            this.grid[this.stateHero.x - 1][this.stateHero.y] == 'E' ||
+            this.grid[this.stateHero.x][this.stateHero.y + 1] == 'E' ||
+            this.grid[this.stateHero.x][this.stateHero.y - 1] == 'E') {
+            alert('You were hit');
+            this.stateHero.currentHP--;
+            if (this.stateHero.currentHP == 0) {
+                alert('YOU ARE DEAD');
+            }
 
-    //draw
+        }
+    }
+
+    //reder
     renderRect(x1, y1, x2, y2, color, alpha) {
         alpha = alpha || 1;
         this.ctx.beginPath();
@@ -357,7 +448,7 @@ class Animation {
         this.renderRect(unit.x, unit.y,
             config.amount * (unit.currentHP / unit.maxHP), -6, 'lime');
     }
-    renderAtack() {
+    renderAttack() {
         this.renderRect(this.stateHero.x + 1, this.stateHero.y, config.amount, config.amount, 'red', .1);
         this.renderRect(this.stateHero.x - 1, this.stateHero.y, config.amount, config.amount, 'red', .1);
         this.renderRect(this.stateHero.x, this.stateHero.y + 1, config.amount, config.amount, 'red', .1);
@@ -387,10 +478,12 @@ anim.loadImages();
 }
 
 document.addEventListener('keydown', function (event) {
-    if (event.code == 'KeyW' ||
+    if ((event.code == 'KeyW' ||
         event.code == 'KeyA' ||
         event.code == 'KeyS' ||
-        event.code == 'KeyD') {
+        event.code == 'KeyD' ||
+        event.code == 'Space') &&
+        anim.stateHero.currentHP != 0) {
         //console.table(anim.grid);
         //console.table(anim.stateHero);
         anim.updatePosition(event.code);

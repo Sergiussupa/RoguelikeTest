@@ -1,5 +1,5 @@
 const config = {
-    amount: 45,
+    amount: 25,
 };
 var image = new Image();
 image.src = 'tile-P.png';
@@ -11,22 +11,26 @@ class Animation {
         this.cols = null;
         this.rows = null;
         this.grid = null;
-        this.stateHero = { x: 3, y: 4 };
+        this.stateHero = { x: 9, y: 9 };
         this.heroImg = new Image();
         this.enemyImg = new Image();
         this.wallImg = new Image();
         this.pathImg = new Image();
     }
+    random(min, max) {
+        return Math.floor(min + Math.random() * (max + 1 - min));
+    }
     init() {
         this.createCanvas();
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
-        this.renderImage(this.heroImg, 0, 0, config.amount);
-        this.renderImage(this.enemyImg, 10, 10, config.amount);
-        this.renderImage(this.wallImg, 5, 9, config.amount);
-        this.renderImage(this.pathImg, 14, 9, config.amount);
+        //this.renderImage(this.heroImg, 0, 0, config.amount);
+        //this.renderImage(this.enemyImg, 10, 10, config.amount);
+        //this.renderImage(this.wallImg, 5, 9, config.amount);
+        //this.renderImage(this.pathImg, 14, 9, config.amount);
 
-
-        this.grid = this.buildGrid();
+        this.buildGrid();
+        this.texturing();
+        //this.grid = this.buildGrid();
         //console.table(this.grid);
         this.setPositionHero();
         //console.table(this.grid)
@@ -40,87 +44,131 @@ class Animation {
     setCanvasSize() {
         this.size.w = this.cnv.width = window.innerWidth;
         this.size.h = this.cnv.height = window.innerHeight;
-        this.cols = Math.floor(this.size.w / config.amount);
-        this.rows = Math.floor(this.size.h / config.amount);
+        this.cols = 60//Math.floor(this.size.w / config.amount);
+        this.rows = 60//Math.floor(this.size.h / config.amount);
     }
     clearCanvas() {
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
     }
 
+    //build grid
     buildGrid() {
-        return new Array(this.cols).fill(null)
+        this.grid = new Array(this.cols).fill(null)
             .map(() => new Array(this.rows).fill(null)
-                .map(() => 'O'));
+                .map(() => 'P'));
+        //this.line();
+        this.spawnWalls();
+    }
+    line() {
+        for (let i = 0; i < this.grid[2].length; i++) {
+            this.grid[2][i] = 'P';
+        }
+        this.grid[this.stateHero.x + 2][this.stateHero.y] = 'W';
+    }
+    spawnWalls() {
+
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 4; j++) {
+                this.createWall(1 + i * 10, 1 + j * 10);
+            }
+        }
+    }
+    createWall(x, y) {
+        let width = this.random(3, 8);
+        let height = this.random(3, 8);
+        console.log(width + ' <-_-> ' + height);
+
+        for (let i = 0; i < width; i++) {
+            for (let j = 0; j < height; j++) {
+                this.grid[x + i][y + j] = 'W';
+            }
+        }
     }
 
+    // texture
+    texturing() {
+        for (let i = 0; i < this.grid.length; i++) {
+            for (let j = 0; j < this.grid[i].length; j++) {
+                if (this.grid[i][j] == 'P') {
+                    this.renderImage(this.pathImg, i, j, config.amount);
+                } else if (this.grid[i][j] == 'W') {
+                    this.renderImage(this.wallImg, i, j, config.amount);
+                }
+            }
+        }
+    }
     //unit
 
     setPositionHero() {
         this.grid[this.stateHero.x][this.stateHero.y] = 'X';
-        this.renderRect(this.stateHero.x, this.stateHero.y,
-            config.amount, config.amount, 'white');
+        this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
     }
     updatePosition(jump) {
         switch (jump) {
             case 'KeyW':
                 this.clearCanvas();
                 this.upHero();
-                this.renderRect(this.stateHero.x, this.stateHero.y,
-                    config.amount, config.amount, 'white');
+                this.texturing();
+                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 break;
             case 'KeyS':
                 this.clearCanvas();
                 this.downHero();
-                this.renderRect(this.stateHero.x, this.stateHero.y,
-                    config.amount, config.amount, 'white');
+                this.texturing();
+                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 break;
             case 'KeyD':
                 this.clearCanvas();
                 this.rightHero();
-                this.renderRect(this.stateHero.x, this.stateHero.y,
-                    config.amount, config.amount, 'white');
+                this.texturing();
+                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 break;
             case 'KeyA':
                 this.clearCanvas();
                 this.lefttHero();
-                this.renderRect(this.stateHero.x, this.stateHero.y,
-                    config.amount, config.amount, 'white');
+                this.texturing();
+                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 break;
         }
     }
-    //nabigation
+    //controls
     upHero() {
-        if (this.stateHero.y == 0) {
+        if (this.grid[this.stateHero.x][this.stateHero.y - 1] == undefined ||
+            this.grid[this.stateHero.x][this.stateHero.y - 1] == 'W') {
             alert('Сверху стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'O';
+            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
             this.stateHero.y--;
             this.grid[this.stateHero.x][this.stateHero.y] = 'X';
         }
     }
     downHero() {
-        if (this.stateHero.y == this.rows - 1) {
+        if (this.grid[this.stateHero.x][this.stateHero.y + 1] == undefined ||
+            this.grid[this.stateHero.x][this.stateHero.y + 1] == 'W') {
             alert('Снизу стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'O';
+            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
             this.stateHero.y++;
             this.grid[this.stateHero.x][this.stateHero.y] = 'X';
         }
     }
     lefttHero() {
-        if (this.stateHero.x == 0) {
+        if (this.grid[this.stateHero.x - 1] == undefined ||
+            this.grid[this.stateHero.x - 1][this.stateHero.y] == 'W') {
             alert('Слева стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'O';
+
+            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
             this.stateHero.x--;
             this.grid[this.stateHero.x][this.stateHero.y] = 'X';
         }
     }
     rightHero() {
-        if (this.stateHero.x == this.cols - 1) {
+        if (this.grid[this.stateHero.x + 1] == undefined ||
+            this.grid[this.stateHero.x + 1][this.stateHero.y] == 'W') {
             alert('Справа стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'O';
+            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
             this.stateHero.x++;
             this.grid[this.stateHero.x][this.stateHero.y] = 'X';
         }
@@ -156,8 +204,8 @@ document.addEventListener('keydown', function (event) {
         event.code == 'KeyA' ||
         event.code == 'KeyS' ||
         event.code == 'KeyD') {
-        console.table(anim.grid);
-        console.table(anim.stateHero);
+        //console.table(anim.grid);
+        //console.table(anim.stateHero);
         anim.updatePosition(event.code);
         //ani.state.x++;
         //ani.createUnit();

@@ -11,7 +11,7 @@ class Animation {
         this.cols = null;
         this.rows = null;
         this.grid = null;
-        this.stateHero = { x: 9, y: 9, range: 2 };
+        this.stateHero = { x: 9, y: 9, range: 1, hp: 3, tag: 'X' };
         this.heroImg = new Image();
         this.enemyImg = new Image();
         this.wallImg = new Image();
@@ -27,6 +27,7 @@ class Animation {
         this.spawnPeriodicity = null;
         this.countsSpawn = this.countsSw + this.countsHp + this.countsE;
         this.basket = [];
+        this.enemyArr = [];
     }
     random(min, max) {
         return Math.floor(min + Math.random() * (max + 1 - min));
@@ -87,9 +88,7 @@ class Animation {
         }
         for (let i = 0; i < this.basket.length ** 2; i++) {
             shuffle(this.basket);
-            //this.countsSpawn[this.basket.join('')]++;
         }
-        console.table(this.basket);
     }
     buildGrid() {
         this.grid = new Array(this.cols).fill(null)
@@ -104,7 +103,7 @@ class Animation {
         console.log(this.spawnPeriodicity);
         this.putBasket();
         this.spawnUnits();
-        console.table(this.grid);
+        //console.table(this.grid);
     }
     line() {
         for (let i = 0; i < this.grid[2].length; i++) {
@@ -119,6 +118,9 @@ class Animation {
                 if (count == 0 && this.grid[i][j] == 'P') {
                     console.log('SPAWN ');
                     this.grid[i][j] = this.basket.pop();
+                    if (this.grid[i][j] == 'E') {
+                        this.enemyArr.push({ x: i, y: j, hp: 5, tag: 'E' });
+                    }
                     count = this.spawnPeriodicity + 1;
                 } else if (this.grid[i][j] == 'P') {
                     count--;
@@ -150,6 +152,7 @@ class Animation {
 
     // texture
     texturing() {
+
         for (let i = 0; i < this.grid.length; i++) {
             for (let j = 0; j < this.grid[i].length; j++) {
                 if (this.grid[i][j] == 'P') {
@@ -165,40 +168,57 @@ class Animation {
                 }
             }
         }
+        //console.log('AAAAAAAAAAA');
+        //console.table(this.enemyArr[0]);
     }
     //unit
 
     setPositionHero() {
         this.grid[this.stateHero.x][this.stateHero.y] = 'X';
+        this.renderRect(this.stateHero.x, this.stateHero.y, config.amount / 1, -6, 'green');
         this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
     }
     updatePosition(jump) {
         switch (jump) {
             case 'KeyW':
                 this.clearCanvas();
-                this.upHero();
+                this.upUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.enemyMove(this.enemyArr[i], this.random(0, 3));
+                }
                 this.texturing();
                 this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 this.renderAtack();
                 break;
             case 'KeyS':
                 this.clearCanvas();
-                this.downHero();
+                this.downUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.enemyMove(this.enemyArr[i], this.random(0, 3));
+                }
                 this.texturing();
                 this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 this.renderAtack();
                 break;
             case 'KeyD':
                 this.clearCanvas();
-                this.rightHero();
+                this.rightUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.enemyMove(this.enemyArr[i], this.random(0, 3));
+                }
                 this.texturing();
-                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 this.renderAtack();
+                this.renderRect(this.stateHero.x, this.stateHero.y,
+                    config.amount * (1 / 5) * this.stateHero.hp, -6, 'lime');
+                this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
 
                 break;
             case 'KeyA':
                 this.clearCanvas();
-                this.lefttHero();
+                this.leftUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.enemyMove(this.enemyArr[i], this.random(0, 3));
+                }
                 this.texturing();
                 this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
                 this.renderAtack();
@@ -206,45 +226,62 @@ class Animation {
         }
     }
     //controls
-    upHero() {
-        if (this.grid[this.stateHero.x][this.stateHero.y - 1] == undefined ||
-            this.grid[this.stateHero.x][this.stateHero.y - 1] == 'W') {
-            alert('Сверху стена');
+    upUnit(unit) {
+        if (this.grid[unit.x][unit.y - 1] == undefined ||
+            this.grid[unit.x][unit.y - 1] == 'W') {
+            //alert('Сверху стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
-            this.stateHero.y--;
-            this.grid[this.stateHero.x][this.stateHero.y] = 'X';
+            this.grid[unit.x][unit.y] = 'P';
+            unit.y--;
+            this.grid[unit.x][unit.y] = unit.tag;
         }
     }
-    downHero() {
-        if (this.grid[this.stateHero.x][this.stateHero.y + 1] == undefined ||
-            this.grid[this.stateHero.x][this.stateHero.y + 1] == 'W') {
-            alert('Снизу стена');
+    downUnit(unit) {
+        if (this.grid[unit.x][unit.y + 1] == undefined ||
+            this.grid[unit.x][unit.y + 1] == 'W') {
+            //alert('Снизу стена');
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
-            this.stateHero.y++;
-            this.grid[this.stateHero.x][this.stateHero.y] = 'X';
+            this.grid[unit.x][unit.y] = 'P';
+            unit.y++;
+            this.grid[unit.x][unit.y] = unit.tag;
         }
     }
-    lefttHero() {
-        if (this.grid[this.stateHero.x - 1] == undefined ||
-            this.grid[this.stateHero.x - 1][this.stateHero.y] == 'W') {
-            alert('Слева стена');
+    leftUnit(unit) {
+        if (this.grid[unit.x - 1] == undefined ||
+            this.grid[unit.x - 1][unit.y] == 'W') {
+            //alert('Слева стена');
         } else {
-
-            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
-            this.stateHero.x--;
-            this.grid[this.stateHero.x][this.stateHero.y] = 'X';
+            this.grid[unit.x][unit.y] = 'P';
+            unit.x--;
+            this.grid[unit.x][unit.y] = unit.tag;
         }
     }
-    rightHero() {
-        if (this.grid[this.stateHero.x + 1] == undefined ||
-            this.grid[this.stateHero.x + 1][this.stateHero.y] == 'W') {
-            alert('Справа стена');
+    rightUnit(unit) {
+        if (this.grid[unit.x + 1] == undefined ||
+            this.grid[unit.x + 1][unit.y] == 'W') {
+            //alert('Справа стена');
+        } else if (this.grid[unit.x + 1][unit.y] == 'HP' &&
+            unit.tag == 'X') {
+            alert('Это жизни');
+            if (unit.hp != 5) unit.hp++;
+            this.grid[unit.x][unit.y] = 'P';
+            unit.x++;
+            this.grid[unit.x][unit.y] = unit.tag;
         } else {
-            this.grid[this.stateHero.x][this.stateHero.y] = 'P';
-            this.stateHero.x++;
-            this.grid[this.stateHero.x][this.stateHero.y] = 'X';
+            this.grid[unit.x][unit.y] = 'P';
+            unit.x++;
+            this.grid[unit.x][unit.y] = unit.tag;
+        }
+    }
+    enemyMove(unit, j) {
+        if (j == 0) {
+            this.leftUnit(unit);
+        } else if (j == 1) {
+            this.rightUnit(unit);
+        } else if (j == 2) {
+            this.upUnit(unit);
+        } else {
+            this.downUnit(unit);
         }
     }
 

@@ -226,53 +226,44 @@ class Animation {
         }
     }
     //controls
+
     upUnit(unit) {
-        if (this.grid[unit.x][unit.y - 1] == undefined ||
-            this.grid[unit.x][unit.y - 1] == 'W') {
-            //alert('Сверху стена');
-        } else {
+        if (this.grid[unit.x][unit.y - 1] == 'P') {
             this.grid[unit.x][unit.y] = 'P';
             unit.y--;
             this.grid[unit.x][unit.y] = unit.tag;
         }
     }
     downUnit(unit) {
-        if (this.grid[unit.x][unit.y + 1] == undefined ||
-            this.grid[unit.x][unit.y + 1] == 'W') {
-            //alert('Снизу стена');
-        } else {
+        if (this.grid[unit.x][unit.y + 1] == 'P') {
             this.grid[unit.x][unit.y] = 'P';
             unit.y++;
             this.grid[unit.x][unit.y] = unit.tag;
         }
     }
     leftUnit(unit) {
-        if (this.grid[unit.x - 1] == undefined ||
-            this.grid[unit.x - 1][unit.y] == 'W') {
-            //alert('Слева стена');
-        } else {
+        if (this.grid[unit.x - 1][unit.y] == 'P') {
             this.grid[unit.x][unit.y] = 'P';
             unit.x--;
             this.grid[unit.x][unit.y] = unit.tag;
         }
     }
     rightUnit(unit) {
-        if (this.grid[unit.x + 1] == undefined ||
-            this.grid[unit.x + 1][unit.y] == 'W') {
+        if (this.grid[unit.x + 1][unit.y] == 'P') {
+            this.grid[unit.x][unit.y] = 'P';
+            unit.x++;
+            this.grid[unit.x][unit.y] = unit.tag;
             //alert('Справа стена');
-        } else if (this.grid[unit.x + 1][unit.y] == 'HP' &&
+        } /*else if (this.grid[unit.x + 1][unit.y] == 'HP' &&
             unit.tag == 'X') {
             alert('Это жизни');
             if (unit.hp != 5) unit.hp++;
             this.grid[unit.x][unit.y] = 'P';
             unit.x++;
             this.grid[unit.x][unit.y] = unit.tag;
-        } else {
-            this.grid[unit.x][unit.y] = 'P';
-            unit.x++;
-            this.grid[unit.x][unit.y] = unit.tag;
-        }
+        }*/
     }
+
     enemyMove(unit, j) {
         if (j == 0) {
             this.leftUnit(unit);

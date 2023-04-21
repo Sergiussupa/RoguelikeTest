@@ -96,22 +96,17 @@ class Animation {
             .map(() => new Array(this.rows).fill(null)
                 .map(() => 'P'));
         this.buildBorder();
-        this.countsP = this.cols * this.rows;
-        //this.line();
         this.spawnWalls();
+
+        this.countsP = this.cols * this.rows;
         console.log(this.countsP + ' <-_-> ' + this.countsW);
         this.countsF = this.countsP - this.countsW;
+        console.log(this.countsF);
         this.spawnPeriodicity = Math.floor(this.countsF / this.countsSpawn);
         console.log(this.spawnPeriodicity);
         this.putBasket();
         this.spawnUnits();
         //console.table(this.grid);
-    }
-    line() {
-        for (let i = 0; i < this.grid[2].length; i++) {
-            this.grid[2][i] = 'P';
-        }
-        this.grid[this.stateHero.x + 2][this.stateHero.y] = 'W';
     }
     spawnUnits() {
         let count = this.spawnPeriodicity;
@@ -121,7 +116,7 @@ class Animation {
                     console.log('SPAWN ');
                     this.grid[i][j] = this.basket.pop();
                     if (this.grid[i][j] == 'E') {
-                        this.enemyArr.push({ x: i, y: j, currentHP: 2, tag: 'E', maxHP: 2 });
+                        this.enemyArr.push({ x: i, y: j, currentHP: 1, tag: 'E', maxHP: 2 });
                     }
                     count = this.spawnPeriodicity + 1;
                 } else if (this.grid[i][j] == 'P') {
@@ -129,13 +124,19 @@ class Animation {
                 }
             }
         }
+        this.grid[1][1] = this.basket.pop()
+        console.table(this.basket);
     }
     buildBorder() {
         for (let i = 0; i < this.cols; i++) {
             this.grid[i][0] = 'W';
             this.grid[i][this.grid[i].length - 1] = 'W';
-            this.grid[0][i % this.rows] = 'W';
-            this.grid[this.grid.length - 1][i % this.rows] = 'W';
+            this.countsW += 2;
+        }
+        for (let i = 0; i < this.rows; i++) {
+            this.grid[0][i] = 'W';
+            this.grid[this.grid.length - 1][i] = 'W';
+            this.countsW += 2;
         }
     }
     spawnWalls() {
@@ -181,8 +182,6 @@ class Animation {
             }
         }
         this.checkAttackEnemy();
-        //console.log('AAAAAAAAAAA');
-        //console.table(this.enemyArr[0]);
     }
     //unit
 
@@ -353,14 +352,6 @@ class Animation {
             console.table(this.stateHero);
             alert('meleeAttack');
             for (let i = 0; i < this.enemyArr.length; i++) {
-                /*if (this.grid[this.enemyArr[i].x + 1][this.enemyArr[i].y] == 'X' ||
-                    this.grid[this.enemyArr[i].x - 1][this.enemyArr[i].y] == 'X' ||
-                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y + 1] == 'X' ||
-                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y - 1] == 'X') {
-                    alert('Loh');
-                    console.log(i);
-                }*/
-
                 if ((this.enemyArr[i].x == this.stateHero.x + 1 ||
                     this.enemyArr[i].x == this.stateHero.x - 1 ||
                     this.enemyArr[i].x == this.stateHero.x) &&
@@ -370,7 +361,11 @@ class Animation {
                     this.enemyArr[i].currentHP--;
                     if (this.enemyArr[i].currentHP == 0) {
                         this.grid[this.enemyArr[i].x][this.enemyArr[i].y] = 'P';
-                        this.enemyArr[i] = this.enemyArr.pop();
+                        if (!this.enemyArr[i + 1]) {
+                            this.enemyArr.pop();
+                        } else {
+                            this.enemyArr[i] = this.enemyArr.pop();
+                        }
                     }
                 }
             }
@@ -381,14 +376,6 @@ class Animation {
                 this.grid[this.stateHero.x][this.stateHero.y + 2] == 'E' ||
                 this.grid[this.stateHero.x][this.stateHero.y - 2] == 'E')) {
             for (let i = 0; i < this.enemyArr.length; i++) {
-                /*if (this.grid[this.enemyArr[i].x + 1][this.enemyArr[i].y] == 'X' ||
-                    this.grid[this.enemyArr[i].x - 1][this.enemyArr[i].y] == 'X' ||
-                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y + 1] == 'X' ||
-                    this.grid[this.enemyArr[i].x][this.enemyArr[i].y - 1] == 'X') {
-                    alert('Loh');
-                    console.log(i);
-                }*/
-
                 if ((this.enemyArr[i].x == this.stateHero.x + 2 ||
                     this.enemyArr[i].x == this.stateHero.x - 2 ||
                     this.enemyArr[i].x == this.stateHero.x) &&
@@ -398,7 +385,11 @@ class Animation {
                     this.enemyArr[i].currentHP--;
                     if (this.enemyArr[i].currentHP == 0) {
                         this.grid[this.enemyArr[i].x][this.enemyArr[i].y] = 'P';
-                        this.enemyArr[i] = this.enemyArr.pop();
+                        if (!this.enemyArr[i + 1]) {
+                            this.enemyArr.pop();
+                        } else {
+                            this.enemyArr[i] = this.enemyArr.pop();
+                        }
                     }
                 }
             }

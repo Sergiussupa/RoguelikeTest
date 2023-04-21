@@ -1,5 +1,6 @@
 const config = {
     amount: 25,
+    enemyHP: 2
 };
 var image = new Image();
 image.src = 'tile-P.png';
@@ -107,7 +108,7 @@ class Animation {
                     console.log('SPAWN ');
                     this.grid[i][j] = this.basket.pop();
                     if (this.grid[i][j] == 'E') {
-                        this.enemyArr.push({ x: i, y: j, currentHP: 1, tag: 'E', maxHP: 2 });
+                        this.enemyArr.push({ x: i, y: j, currentHP: config.enemyHP, tag: 'E', maxHP: 2 });
                     }
                     count = this.spawnPeriodicity + 1;
                 } else if (this.grid[i][j] == 'P') {

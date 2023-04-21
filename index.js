@@ -35,18 +35,9 @@ class Animation {
     init() {
         this.createCanvas();
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
-        //this.renderImage(this.heroImg, 0, 0, config.amount);
-        //this.renderImage(this.enemyImg, 10, 10, config.amount);
-        //this.renderImage(this.wallImg, 5, 9, config.amount);
-        //this.renderImage(this.pathImg, 14, 9, config.amount);
-
         this.buildGrid();
-        //this.grid = this.buildGrid();
-        //console.table(this.grid);
         this.setPositionHero();
         this.texturing();
-
-        //console.table(this.grid)
     }
     createCanvas() {
         this.cnv = document.createElement("canvas");
@@ -57,8 +48,8 @@ class Animation {
     setCanvasSize() {
         this.size.w = this.cnv.width = window.innerWidth;
         this.size.h = this.cnv.height = window.innerHeight;
-        this.cols = 61//Math.floor(this.size.w / config.amount);
-        this.rows = 32//Math.floor(this.size.h / config.amount);
+        this.cols = 61;//Math.floor(this.size.w / config.amount);
+        this.rows = 32;//Math.floor(this.size.h / config.amount);
     }
     clearCanvas() {
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
@@ -124,8 +115,9 @@ class Animation {
                 }
             }
         }
-        this.grid[1][1] = this.basket.pop()
-        console.table(this.basket);
+        if ((this.grid[1][1] = this.basket.pop()) == 'E') {
+            this.enemyArr.push({ x: 1, y: 1, currentHP: 1, tag: 'E', maxHP: 2 });
+        }
     }
     buildBorder() {
         for (let i = 0; i < this.cols; i++) {

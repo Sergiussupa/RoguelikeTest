@@ -45,12 +45,17 @@ class Animation {
         this.ctx = this.cnv.getContext('2d');
         this.setCanvasSize();
         document.body.appendChild(this.cnv);
+        window.addEventListener(`resize`, () => this.updatePosition('Resize'));
     }
     setCanvasSize() {
         this.size.w = this.cnv.width = window.innerWidth;
         this.size.h = this.cnv.height = window.innerHeight;
         this.cols = 61;//Math.floor(this.size.w / config.amount);
         this.rows = 32;//Math.floor(this.size.h / config.amount);
+
+        config.amount = Math.floor(!(window.innerWidth / this.cols > window.innerHeight / this.rows) ?
+            window.innerWidth / this.cols : window.innerHeight / this.rows);
+
     }
     clearCanvas() {
         this.renderRect(0, 0, this.size.w, this.size.h, 'brown');
@@ -254,6 +259,18 @@ class Animation {
                     this.renderHPbarUnit(this.enemyArr[i]);
                 }
                 this.renderAttack();
+                break;
+            case 'Resize':
+                this.setCanvasSize()
+                this.clearCanvas();
+                this.texturing();
+                //this.renderImage(this.heroImg, this.stateHero.x, this.stateHero.y, config.amount);
+                this.renderHPbarUnit(this.stateHero);
+                for (let i = 0; i < this.enemyArr.length; i++) {
+                    this.renderHPbarUnit(this.enemyArr[i]);
+                }
+                this.renderAttack();
+
                 break;
         }
     }

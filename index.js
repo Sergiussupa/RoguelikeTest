@@ -363,6 +363,13 @@ class Animation {
             }
         }
         if (this.stateHero.range == 2 &&
+
+            (this.stateHero.x == 1 ||
+                this.stateHero.x == 59)) {
+            alert('Мало места для размаха');
+            console.table(this.stateHero);
+        }
+        else if (this.stateHero.range == 2 &&
             (this.grid[this.stateHero.x + 2][this.stateHero.y] == 'E' ||
                 this.grid[this.stateHero.x - 2][this.stateHero.y] == 'E' ||
                 this.grid[this.stateHero.x][this.stateHero.y + 2] == 'E' ||
@@ -420,7 +427,6 @@ class Animation {
         this.ctx.globalAlpha = alpha;
         this.ctx.rect(config.amount * x1, config.amount * y1, x2, y2);
         this.ctx.fillStyle = color;
-        //console.log('ss');
         this.ctx.fill();
         this.ctx.globalAlpha = 1;
     }
@@ -467,10 +473,6 @@ document.addEventListener('keydown', function (event) {
         event.code == 'KeyD' ||
         event.code == 'Space') &&
         anim.stateHero.currentHP != 0) {
-        //console.table(anim.grid);
-        //console.table(anim.stateHero);
         anim.updatePosition(event.code);
-        //ani.state.x++;
-        //ani.createUnit();
     }
 });
